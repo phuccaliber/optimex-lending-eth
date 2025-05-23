@@ -37,6 +37,11 @@ contract AccountPositionManagerFactoryTest is Test {
 
         // Verify position manager was created and mapped correctly
         assertEq(lendingManagement.accountPositionManagerAddresses(onBehalf), positionManager);
+        assertEq(
+            address(BaseOptimexLending(positionManager).lendingManagement()),
+            address(lendingManagement),
+            "Lending Management is not set correctly"
+        );
     }
 
     function testCannotCreateDuplicateManager(address onBehalf) public {

@@ -39,7 +39,10 @@ contract AccountPositionManagerFactory is BaseOptimexLending {
 
         // The position manager is created using BeaconProxy pattern to save gas costs, and assigned to the user
         // The beacon address is the lendingManagement contract
-        positionManager = address(new BeaconProxy(address(lendingManagement), ""));
+        // When creating beacon proxy, we also set the lendingManagement contract
+        bytes memory data =
+            abi.encodeWithSelector(BaseOptimexLending.setLendingManagement.selector, address(lendingManagement));
+        positionManager = address(new BeaconProxy(address(lendingManagement), data));
         _setAccountPositionManager(onBehalf, positionManager);
 
         emit PositionManagerCreated(onBehalf, positionManager);
