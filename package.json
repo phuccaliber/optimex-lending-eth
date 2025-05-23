@@ -31,6 +31,7 @@
     "build:foundry": "forge build",
     "test:hardhat": "npx hardhat test",
     "test:foundry": "forge test",
+    "report-gas": "forge coverage --gas-report",
     "format": "forge fmt"
   }
 }
