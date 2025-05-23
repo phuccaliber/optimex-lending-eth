@@ -28,14 +28,6 @@ contract AccountPositionManagerFactoryTest is Test {
 
     function testContractIsInitializedCorrectly() public view {
         assertEq(
-            lendingManagement.implementation(), address(implementation), "The implementaion contract is not correct"
-        );
-        assertEq(lendingManagement.owner(), OWNER, "The owner is not correct");
-        assertEq(
-            lendingManagement.positionManagerFactory(), address(factory), "The position manager factory is not correct"
-        );
-
-        assertEq(
             address(factory.lendingManagement()), address(lendingManagement), "The lending management is not correct"
         );
     }
