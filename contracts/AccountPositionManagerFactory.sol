@@ -23,7 +23,9 @@ contract AccountPositionManagerFactory is BaseOptimexLending {
      * @notice Constructor
      * @param lendingManagement The address of the lending management contract
      */
-    constructor(address lendingManagement) BaseOptimexLending(lendingManagement) {}
+    constructor(address lendingManagement) {
+        _setLendingManagement(lendingManagement);
+    }
 
     /**
      * @notice Creates a new account position manager for the given user

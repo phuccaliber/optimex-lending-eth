@@ -6,11 +6,7 @@ import "./interfaces/ILendingManagement.sol";
 contract BaseOptimexLending {
     ILendingManagement public lendingManagement;
 
-    constructor(address initialLendingManagement) {
-        lendingManagement = ILendingManagement(initialLendingManagement);
-    }
-
-    function setLendingManagement(address newLendingManagement) external {
+    function _setLendingManagement(address newLendingManagement) internal {
         lendingManagement = ILendingManagement(newLendingManagement);
     }
 
