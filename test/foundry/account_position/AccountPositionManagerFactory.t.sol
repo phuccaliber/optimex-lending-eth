@@ -6,6 +6,7 @@ import "../../../contracts/AccountPositionManagerFactory.sol";
 import "../../../contracts/AccountPositionManager.sol";
 import "../../../contracts/interfaces/ILendingManagement.sol";
 import "../../../contracts/LendingManagement.sol";
+import "../../../contracts/AccountPositionManager.sol";
 
 contract AccountPositionManagerFactoryTest is Test {
     AccountPositionManagerFactory factory;
@@ -42,6 +43,17 @@ contract AccountPositionManagerFactoryTest is Test {
             address(lendingManagement),
             "Lending Management is not set correctly"
         );
+    }
+
+    function testAccountPositionManagerRevertedIfSetLendingManagementTwice(address onBehalf) public {
+        address positionManager = factory.createAccountPositionManager(onBehalf);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                BaseOptimexLending.LendingManagementAlreadyInitialized.selector, address(lendingManagement)
+            )
+        );
+        AccountPositionManager(positionManager).setLendingManagement(address(lendingManagement));
     }
 
     function testCannotCreateDuplicateManager(address onBehalf) public {
