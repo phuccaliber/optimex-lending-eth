@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "../lib/openzeppelin-contracts/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "../lib/openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol";
+import "./BaseOptimexLending.sol";
 
-contract AccountPositionManagerFactory is UpgradeableBeacon {
-    mapping(address => address) public positionManagerAddresses;
-
+contract AccountPositionManagerFactory is BaseOptimexLending {
     /**
      * @notice Emitted when a user already has a position manager
      * @param user The address that already has a position manager
@@ -21,7 +19,11 @@ contract AccountPositionManagerFactory is UpgradeableBeacon {
      */
     event PositionManagerCreated(address indexed user, address indexed positionManager);
 
-    constructor(address implementation, address authorized) UpgradeableBeacon(implementation, authorized) {}
+    /**
+     * @notice Constructor
+     * @param lendingManagement The address of the lending management contract
+     */
+    constructor(address lendingManagement) BaseOptimexLending(lendingManagement) {}
 
     /**
      * @notice Creates a new account position manager for the given user
@@ -29,10 +31,15 @@ contract AccountPositionManagerFactory is UpgradeableBeacon {
      * @return The address of the new account position manager
      */
     function createAccountPositionManager(address onBehalf) external returns (address) {
-        address positionManager = positionManagerAddresses[onBehalf];
+        // Check if the user already has a position manager
+        address positionManager = _getAccountPositionManager(onBehalf);
         require(positionManager == address(0), AlreadyHasPositionManager(onBehalf, positionManager));
-        positionManager = address(new BeaconProxy(address(this), ""));
-        positionManagerAddresses[onBehalf] = positionManager;
+
+        // The position manager is created using BeaconProxy pattern to save gas costs, and assigned to the user
+        // The beacon address is the lendingManagement contract
+        positionManager = address(new BeaconProxy(address(lendingManagement), ""));
+        _setAccountPositionManager(onBehalf, positionManager);
+
         emit PositionManagerCreated(onBehalf, positionManager);
         return positionManager;
     }

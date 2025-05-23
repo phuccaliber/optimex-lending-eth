@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import "../../../lib/forge-std/src/Test.sol";
 import "../../../contracts/AccountPositionManagerFactory.sol";
 import "../../../contracts/AccountPositionManager.sol";
+import "../../../contracts/interfaces/ILendingManagement.sol";
+import "../../../contracts/LendingManagement.sol";
 
 contract AccountPositionManagerFactoryTest is Test {
     AccountPositionManagerFactory factory;
+    LendingManagement lendingManagement;
     address implementation;
     address OWNER;
     address USER;
@@ -17,35 +20,46 @@ contract AccountPositionManagerFactoryTest is Test {
 
         vm.startPrank(OWNER);
         implementation = address(new AccountPositionManager());
-        factory = new AccountPositionManagerFactory(address(implementation), OWNER);
+        lendingManagement = new LendingManagement(address(implementation), OWNER);
+        factory = new AccountPositionManagerFactory(address(lendingManagement));
+        lendingManagement.setPositionManagerFactory(address(factory));
         vm.stopPrank();
     }
 
-    function testAccountPositionManagerIsInitialized() public view {
-        assertEq(factory.implementation(), implementation, "The implementaion contract is not correct");
-        assertEq(factory.owner(), OWNER, "The owner is not correct");
+    function testContractIsInitializedCorrectly() public view {
+        assertEq(
+            lendingManagement.implementation(), address(implementation), "The implementaion contract is not correct"
+        );
+        assertEq(lendingManagement.owner(), OWNER, "The owner is not correct");
+        assertEq(
+            lendingManagement.positionManagerFactory(), address(factory), "The position manager factory is not correct"
+        );
+
+        assertEq(
+            address(factory.lendingManagement()), address(lendingManagement), "The lending management is not correct"
+        );
     }
 
-    function testCreateAccountPositionManager() public {
-        address positionManager = factory.createAccountPositionManager(USER);
+    function testCreateAccountPositionManager(address onBehalf) public {
+        address positionManager = factory.createAccountPositionManager(onBehalf);
 
         // Verify position manager was created and mapped correctly
-        assertEq(factory.positionManagerAddresses(USER), positionManager);
+        assertEq(lendingManagement.accountPositionManagerAddresses(onBehalf), positionManager);
     }
 
-    function testCannotCreateDuplicateManager() public {
+    function testCannotCreateDuplicateManager(address onBehalf) public {
         // Create first position manager
-        factory.createAccountPositionManager(USER);
+        factory.createAccountPositionManager(onBehalf);
 
         // Attempt to create second position manager for same USER
         vm.expectRevert(
             abi.encodeWithSelector(
                 AccountPositionManagerFactory.AlreadyHasPositionManager.selector,
-                USER,
-                factory.positionManagerAddresses(USER)
+                onBehalf,
+                lendingManagement.accountPositionManagerAddresses(onBehalf)
             )
         );
-        factory.createAccountPositionManager(USER);
+        factory.createAccountPositionManager(onBehalf);
     }
 
     function testEmitsEventOnCreation() public {
@@ -60,7 +74,7 @@ contract AccountPositionManagerFactoryTest is Test {
         vm.startPrank(USER);
         address positionManager = factory.createAccountPositionManager(onBehalf);
         assertEq(
-            factory.positionManagerAddresses(onBehalf),
+            lendingManagement.accountPositionManagerAddresses(onBehalf),
             positionManager,
             "The position manager was not created for the correct user"
         );
