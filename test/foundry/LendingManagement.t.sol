@@ -70,4 +70,53 @@ contract LendingManagementTest is Test {
         vm.expectRevert("Only the position manager factory can call this function");
         lendingManagement.setAccountPositionManager(user, positionManager);
     }
+
+    function testSetIsMPC() public {
+        address mpc = makeAddr("MPC");
+
+        vm.prank(OWNER);
+        lendingManagement.setIsMPC(mpc, true);
+        assertTrue(lendingManagement.isMPC(mpc), "MPC status not set to true");
+
+        vm.prank(OWNER);
+        lendingManagement.setIsMPC(mpc, false);
+        assertFalse(lendingManagement.isMPC(mpc), "MPC status not set to false");
+    }
+
+    function testSetIsMPC_EmitsEvent() public {
+        address mpc = makeAddr("MPC");
+
+        vm.prank(OWNER);
+        vm.expectEmit(true, false, false, true);
+        emit LendingManagement.MPCStatusChanged(mpc, true);
+        lendingManagement.setIsMPC(mpc, true);
+    }
+
+    function testSetIsMPC_RevertIfZeroAddress() public {
+        vm.prank(OWNER);
+        vm.expectRevert(LendingManagement.ZeroAddressNotAllowed.selector);
+        lendingManagement.setIsMPC(address(0), true);
+    }
+
+    function testSetIsMPC_RevertIfStatusNotChanged() public {
+        address mpc = makeAddr("MPC");
+
+        // First set to true
+        vm.prank(OWNER);
+        lendingManagement.setIsMPC(mpc, true);
+
+        // Try to set to true again
+        vm.prank(OWNER);
+        vm.expectRevert(abi.encodeWithSelector(LendingManagement.MPCStatusNotChanged.selector, mpc, true));
+        lendingManagement.setIsMPC(mpc, true);
+    }
+
+    function testSetIsMPC_RevertIfNotOwner() public {
+        address mpc = makeAddr("MPC");
+        address notOwner = makeAddr("NOT_OWNER");
+
+        vm.prank(notOwner);
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, notOwner));
+        lendingManagement.setIsMPC(mpc, true);
+    }
 }
