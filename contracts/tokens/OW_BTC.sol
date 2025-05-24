@@ -29,7 +29,6 @@ contract OW_BTC is ERC20, Ownable {
     error NotWhitelisted(address account);
     error SenderNotWhitelisted(address sender);
     error RecipientNotWhitelisted(address recipient);
-    error TransferToZeroAddressNotAllowed();
 
     constructor(address initialOwner) ERC20("Optimex Wrapped Bitcoin", "OW_BTC") Ownable(initialOwner) {}
 
@@ -129,9 +128,6 @@ contract OW_BTC is ERC20, Ownable {
         if (to != address(0)) {
             // Skip whitelist check for burning
             if (!isWhitelisted(to)) revert RecipientNotWhitelisted(to);
-        } else if (from != address(0)) {
-            // Prevent transfer to zero address (except for burning)
-            revert TransferToZeroAddressNotAllowed();
         }
         super._update(from, to, amount);
     }
