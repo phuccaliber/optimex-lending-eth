@@ -5,12 +5,11 @@ import {Test} from "forge-std/Test.sol";
 import "../../../contracts/AccountPositionManager.sol";
 import {IMorpho} from "../../../lib/metamorpho-v1.1/lib/morpho-blue/src/interfaces/IMorpho.sol";
 import "../../mock/ERC20Mock.sol";
-import "../../mock/interfaces/IERC20Mock.sol";
 
 contract BaseMorphoTest is Test {
     IMorpho public MORPHO;
-    IERC20Mock public BTC;
-    IERC20Mock public USDC;
+    ERC20Mock public BTC;
+    ERC20Mock public USDC;
     address public OWNER;
     address public SUPPLIER;
     address public BORROWER;
@@ -26,8 +25,8 @@ contract BaseMorphoTest is Test {
         SUPPLIER = makeAddr("SUPPLIER");
         BORROWER = makeAddr("BORROWER");
         MPC = makeAddr("MPC");
-        BTC = IERC20Mock(new MockERC20("BTC", "BTC", 8));
-        USDC = IERC20Mock(new MockERC20("USDC", "USDC", 6));
+        BTC = new ERC20Mock("BTC", "BTC", 8);
+        USDC = new ERC20Mock("USDC", "USDC", 6);
         BTC.mint(BORROWER, 1e8);
         USDC.mint(SUPPLIER, 1000000e6);
     }

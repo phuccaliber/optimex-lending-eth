@@ -11,7 +11,7 @@ contract DeployMock is Script {
 
     function run() external {
         uint256 deployerPrivateKey;
-        
+
         // Check if PRIVATE_KEY is explicitly set
         if (vm.envExists("PRIVATE_KEY")) {
             deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -22,7 +22,7 @@ contract DeployMock is Script {
             deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
             console.log("Using default Anvil account #0");
         }
-        
+
         // Start broadcast with the private key
         vm.startBroadcast(deployerPrivateKey);
 
@@ -38,7 +38,7 @@ contract DeployMock is Script {
         json = vm.serializeAddress("", "owner", owner);
         string memory path = string.concat(vm.projectRoot(), "/deployments/morpho.json");
         vm.writeJson(json, path);
-        
+
         console.log("Morpho deployed at:", address(morpho));
         console.log("Owner set to:", owner);
     }
