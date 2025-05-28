@@ -72,8 +72,20 @@ contract AccountPositionManagerFactoryTest is Test {
     }
 
     function testEmitsEventOnCreation() public {
+        // Calculate expected proxy address based on create2 salt
+        bytes memory data = abi.encodeWithSelector(BaseOptimexLending.setLendingManagement.selector, address(lendingManagement));
+        bytes32 salt = bytes32(uint256(uint160(USER)));
+        address expectedManager = address(uint160(uint256(keccak256(abi.encodePacked(
+            bytes1(0xff),
+            address(factory),
+            salt,
+            keccak256(abi.encodePacked(
+                type(BeaconProxy).creationCode,
+                abi.encode(address(lendingManagement), data)
+            ))
+        )))));
+
         vm.expectEmit(true, true, false, true);
-        address expectedManager = computeCreateAddress(address(factory), vm.getNonce(address(factory)));
         emit AccountPositionManagerFactory.PositionManagerCreated(USER, expectedManager);
 
         factory.createAccountPositionManager(USER);
