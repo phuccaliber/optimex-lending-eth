@@ -30,8 +30,8 @@
     "build:hardhat": "npx hardhat compile",
     "build:foundry": "forge build",
     "test:hardhat": "npx hardhat test",
-    "test:foundry": "forge test",
-    "coverage": "forge coverage --gas-report",
+    "test:foundry": "bash test/test_foundry.sh",
+    "coverage": "bash test/coverage_foundry.sh",
     "report-gas": "forge test --gas-report",
     "format": "forge fmt"
   }
