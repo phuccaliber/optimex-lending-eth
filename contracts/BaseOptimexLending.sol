@@ -26,4 +26,8 @@ contract BaseOptimexLending {
     function _setAccountPositionManager(address onBehalf, address accountPositionManager) internal {
         lendingManagement.setAccountPositionManager(onBehalf, accountPositionManager);
     }
+
+    function _getMORPHO() internal view returns (address) {
+        return lendingManagement.MORPHO();
+    }
 }
