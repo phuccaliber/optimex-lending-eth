@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import "../../../contracts/AccountPositionManager.sol";
-import {IMorpho, Id} from "../../../lib/metamorpho-v1.1/lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {IMorpho, Id, Position, Market} from "../../../lib/metamorpho-v1.1/lib/morpho-blue/src/interfaces/IMorpho.sol";
 import {MarketParamsLib} from "../../../lib/metamorpho-v1.1/lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 import "../../../lib/metamorpho-v1.1/src/mocks/IRMMock.sol";
 import "../../../lib/metamorpho-v1.1/src/mocks/OracleMock.sol";
@@ -50,7 +50,7 @@ contract BaseMorphoTest is Test {
         vm.startPrank(OWNER);
         MORPHO.enableIrm(address(IRM_MOCK));
         MORPHO.enableLltv(86e16);
-        ORACLE_MOCK.setPrice(1000); // 1 BTC = 100.000 USDC
+        ORACLE_MOCK.setPrice(1000e36); // 1 BTC = 100.000 USDC
         marketParams = MarketParams({
             loanToken: address(USDC),
             collateralToken: address(BTC),
@@ -60,5 +60,16 @@ contract BaseMorphoTest is Test {
         });
         MORPHO.createMarket(marketParams);
         marketId = marketParams.id();
+        vm.stopPrank();
+
+        // Approve tokens
+        vm.prank(SUPPLIER);
+        USDC.approve(address(MORPHO), type(uint256).max);
+
+        vm.prank(BORROWER);
+        BTC.approve(address(MORPHO), type(uint256).max);
+
+        vm.prank(BORROWER);
+        USDC.approve(address(MORPHO), type(uint256).max);
     }
 }
