@@ -6,6 +6,8 @@ import "./BaseOptimexLending.sol";
 import "./interfaces/IAccountPositionManager.sol";
 
 contract AccountPositionManager is IAccountPositionManager, BaseOptimexLending {
+    error NotOwner(address sender);
+
     address public owner;
 
     function initialize(address initialLendingManagement, address initialOwner) external {
@@ -19,5 +21,12 @@ contract AccountPositionManager is IAccountPositionManager, BaseOptimexLending {
         IERC20(marketParams.collateralToken).approve(address(morpho), assets);
         morpho.supplyCollateral(marketParams, assets, address(this), data);
         emit CollateralSupplied(marketParams.collateralToken, assets, address(this));
+    }
+
+    function borrow(MarketParams memory marketParams, uint256 assets) external {
+        if (msg.sender != owner) revert NotOwner(msg.sender);
+        IMorpho morpho = IMorpho(_getMORPHO());
+        morpho.borrow(marketParams, assets, 0, address(this), owner);
+        emit Borrowed(marketParams.loanToken, assets, owner);
     }
 }
