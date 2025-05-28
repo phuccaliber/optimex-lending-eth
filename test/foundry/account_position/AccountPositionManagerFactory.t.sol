@@ -7,6 +7,7 @@ import "../../../contracts/AccountPositionManager.sol";
 import "../../../contracts/interfaces/ILendingManagement.sol";
 import "../../../contracts/LendingManagement.sol";
 import "../../../contracts/AccountPositionManager.sol";
+import "../../../contracts/interfaces/IAccountPositionManager.sol";
 
 contract AccountPositionManagerFactoryTest is Test {
     AccountPositionManagerFactory factory;
@@ -73,17 +74,27 @@ contract AccountPositionManagerFactoryTest is Test {
 
     function testEmitsEventOnCreation() public {
         // Calculate expected proxy address based on create2 salt
-        bytes memory data = abi.encodeWithSelector(BaseOptimexLending.setLendingManagement.selector, address(lendingManagement));
+        bytes memory data =
+            abi.encodeWithSelector(IAccountPositionManager.initialize.selector, address(lendingManagement), USER);
         bytes32 salt = bytes32(uint256(uint160(USER)));
-        address expectedManager = address(uint160(uint256(keccak256(abi.encodePacked(
-            bytes1(0xff),
-            address(factory),
-            salt,
-            keccak256(abi.encodePacked(
-                type(BeaconProxy).creationCode,
-                abi.encode(address(lendingManagement), data)
-            ))
-        )))));
+        address expectedManager = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(factory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(BeaconProxy).creationCode, abi.encode(address(lendingManagement), data)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
         vm.expectEmit(true, true, false, true);
         emit AccountPositionManagerFactory.PositionManagerCreated(USER, expectedManager);

@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "../lib/openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol";
 import "./BaseOptimexLending.sol";
+import "./interfaces/IAccountPositionManager.sol";
 
 contract AccountPositionManagerFactory is BaseOptimexLending {
     /**
@@ -41,8 +42,9 @@ contract AccountPositionManagerFactory is BaseOptimexLending {
         // The beacon address is the lendingManagement contract
         // When creating beacon proxy, we also set the lendingManagement contract
         bytes memory data =
-            abi.encodeWithSelector(BaseOptimexLending.setLendingManagement.selector, address(lendingManagement));
-        positionManager = address(new BeaconProxy{salt: bytes32(uint256(uint160(onBehalf)))}(address(lendingManagement), data));
+            abi.encodeWithSelector(IAccountPositionManager.initialize.selector, address(lendingManagement), onBehalf);
+        positionManager =
+            address(new BeaconProxy{salt: bytes32(uint256(uint160(onBehalf)))}(address(lendingManagement), data));
         _setAccountPositionManager(onBehalf, positionManager);
 
         emit PositionManagerCreated(onBehalf, positionManager);
