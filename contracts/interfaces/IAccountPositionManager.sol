@@ -5,6 +5,7 @@ import "lib/metamorpho-v1.1/lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 interface IAccountPositionManager {
     event CollateralSupplied(address indexed collateralToken, uint256 assets, address account);
+
     function initialize(address initialLendingManagement, address initialOwner) external;
     function supplyCollateral(MarketParams memory marketParams, bytes memory data) external;
 }

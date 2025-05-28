@@ -6,4 +6,5 @@ interface ILendingManagement {
     function setAccountPositionManager(address onBehalf, address accountPositionManager) external;
     function setPositionManagerFactory(address newPositionManagerFactory) external;
     function MORPHO() external view returns (address);
+    function isMPC(address mpc) external view returns (bool);
 }

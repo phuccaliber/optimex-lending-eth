@@ -16,6 +16,7 @@ contract AccountPositionManager is IAccountPositionManager, BaseOptimexLending {
     function supplyCollateral(MarketParams memory marketParams, bytes memory data) external {
         IMorpho morpho = IMorpho(_getMORPHO());
         uint256 assets = IERC20(marketParams.collateralToken).balanceOf(address(this));
+        IERC20(marketParams.collateralToken).approve(address(morpho), assets);
         morpho.supplyCollateral(marketParams, assets, address(this), data);
         emit CollateralSupplied(marketParams.collateralToken, assets, address(this));
     }
