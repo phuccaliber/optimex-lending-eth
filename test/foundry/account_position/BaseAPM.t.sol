@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
 import {AccountPositionManager} from "../../../contracts/AccountPositionManager.sol";
+import {AccountPositionManagerFactory} from "../../../contracts/AccountPositionManagerFactory.sol";
 import {LendingManagement} from "../../../contracts/LendingManagement.sol";
 import {OW_BTC} from "../../../contracts/tokens/OW_BTC.sol";
 import {OptimexBundle} from "../../../contracts/OptimexBundle.sol";
@@ -33,6 +34,7 @@ contract BaseAPMTest is Test {
     OptimexBundle public OPTIMEX_BUNDLE;
     LendingManagement public LENDING_MANAGEMENT;
     AccountPositionManager public APM;
+    AccountPositionManagerFactory public APM_FACTORY;
     address public OWNER;
     address public SUPPLIER;
     address public BORROWER;
@@ -85,13 +87,17 @@ contract BaseAPMTest is Test {
         APM = new AccountPositionManager();
         vm.startPrank(OWNER);
         BTC.addOperator(OWNER);
-        OPTIMEX_BUNDLE = new OptimexBundle(address(BTC), address(LENDING_MANAGEMENT));
-        BTC.addOperator(address(OPTIMEX_BUNDLE));
         LENDING_MANAGEMENT = new LendingManagement(address(APM), OWNER);
         LENDING_MANAGEMENT.setIsMPC(MPC, true);
+        OPTIMEX_BUNDLE = new OptimexBundle(address(BTC), address(LENDING_MANAGEMENT));
+        APM_FACTORY = new AccountPositionManagerFactory(address(LENDING_MANAGEMENT));
+        BTC.addOperator(address(OPTIMEX_BUNDLE));
         address[] memory accounts = new address[](1);
         accounts[0] = address(MORPHO);
         BTC.addToWhitelistBatch(accounts);
+        LENDING_MANAGEMENT.setPositionManagerFactory(address(APM_FACTORY));
+        LENDING_MANAGEMENT.setMORPHO(address(MORPHO));
+        APM_FACTORY.createAccountPositionManager(BORROWER);
         vm.stopPrank();
     }
 }
