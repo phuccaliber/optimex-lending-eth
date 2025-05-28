@@ -6,7 +6,6 @@ import "./interfaces/ILendingManagement.sol";
 contract BaseOptimexLending {
     ILendingManagement public lendingManagement;
 
-
     error LendingManagementAlreadyInitialized(address lendingManagement);
     error NotMPC(address sender);
 

@@ -9,18 +9,18 @@ import "./interfaces/IAccountPositionManager.sol";
 
 contract OptimexBundle is BaseOptimexLending {
     error PositionManagerNotFound();
+
     OW_BTC public immutable owBtc;
-    
-    constructor(address _owBtc) {
+
+    constructor(address _owBtc, address initialLendingManagement) {
         owBtc = OW_BTC(_owBtc);
+        _setLendingManagement(initialLendingManagement);
     }
 
-    function supplyCollateral(
-        MarketParams memory marketParams,
-        uint256 amount,
-        address onBehalf,
-        bytes memory data
-    ) external onlyMPC {
+    function supplyCollateral(MarketParams memory marketParams, uint256 amount, address onBehalf, bytes memory data)
+        external
+        onlyMPC
+    {
         address positionManager = _getAccountPositionManager(onBehalf);
         if (positionManager == address(0)) revert PositionManagerNotFound();
         // Check if positionManager is whitelisted for owBtc minting
