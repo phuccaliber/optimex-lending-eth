@@ -7,6 +7,12 @@ contract BaseOptimexLending {
     ILendingManagement public lendingManagement;
 
     error LendingManagementAlreadyInitialized(address lendingManagement);
+    error NotMPC(address sender);
+
+    modifier onlyMPC() {
+        if (!lendingManagement.isMPC(msg.sender)) revert NotMPC(msg.sender);
+        _;
+    }
 
     function setLendingManagement(address newLendingManagement) external {
         _setLendingManagement(newLendingManagement);
@@ -25,5 +31,9 @@ contract BaseOptimexLending {
 
     function _setAccountPositionManager(address onBehalf, address accountPositionManager) internal {
         lendingManagement.setAccountPositionManager(onBehalf, accountPositionManager);
+    }
+
+    function _getMORPHO() internal view returns (address) {
+        return lendingManagement.MORPHO();
     }
 }

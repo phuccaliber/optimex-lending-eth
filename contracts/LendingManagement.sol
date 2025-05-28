@@ -10,6 +10,7 @@ contract LendingManagement is UpgradeableBeacon, ILendingManagement {
     mapping(address => bool) public isMPC;
 
     address public positionManagerFactory;
+    address public MORPHO;
 
     modifier onlyPositionManagerFactory() {
         require(msg.sender == positionManagerFactory, "Only the position manager factory can call this function");
@@ -51,5 +52,9 @@ contract LendingManagement is UpgradeableBeacon, ILendingManagement {
         if (isMPC[mpc] == _isMPC) revert MPCStatusNotChanged(mpc, _isMPC);
         isMPC[mpc] = _isMPC;
         emit MPCStatusChanged(mpc, _isMPC);
+    }
+
+    function setMORPHO(address newMORPHO) external onlyOwner {
+        MORPHO = newMORPHO;
     }
 }

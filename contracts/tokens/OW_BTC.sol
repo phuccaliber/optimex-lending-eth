@@ -137,7 +137,7 @@ contract OW_BTC is ERC20, Ownable {
      * @param to Address to mint tokens to
      * @param amount Amount of tokens to mint
      */
-    function mint(address to, uint256 amount) external onlyOwner {
+    function mint(address to, uint256 amount) external onlyOperator {
         if (!isWhitelisted(to)) revert RecipientNotWhitelisted(to);
         _mint(to, amount);
     }
