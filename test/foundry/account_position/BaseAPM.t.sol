@@ -40,7 +40,7 @@ contract BaseAPMTest is Test {
     address public BORROWER;
     address public MPC;
 
-    function setUp() public {
+    function setUp() public virtual {
         vm.createSelectFork("http://localhost:8545");
 
         string memory path = string.concat(vm.projectRoot(), "/deployments/morpho.json");
@@ -99,5 +99,8 @@ contract BaseAPMTest is Test {
         LENDING_MANAGEMENT.setMORPHO(address(MORPHO));
         APM_FACTORY.createAccountPositionManager(BORROWER);
         vm.stopPrank();
+
+        vm.prank(SUPPLIER);
+        MORPHO.supply(marketParams, 1000000e6, 0, SUPPLIER, "");
     }
 }
